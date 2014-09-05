@@ -9,6 +9,11 @@
 <template name="player">
   <div id="player" class="container">
     <div class="row">
+
+      <!-- assistant1 wide -->
+      <div class="col-md-1 col-xs-1 dropup">
+        {{> assistant}}
+      </div>
     
       <!-- play/pause button, 1 wide -->
       <div class="col-md-2 col-xs-2">
@@ -20,14 +25,13 @@
       {{/if}}
         <button class="player-control-button btn btn-default btn-xs" id="player-next"><span class="glyphicon glyphicon-step-forward"></span></button>
       </div>
-      
-      <!-- stop button, 1 wide -->
+
       <div class="col-md-1 col-xs-1">
         <button class="btn btn-default btn-xs player-control-button" id="player-stop"><span class="glyphicon glyphicon-stop"></span></button>
       </div>
       
       <!-- progress bar 8 wide -->
-      <div id="player-progress" class="col-md-7 col-xs-7">
+      <div id="player-progress" class="col-md-6 col-xs-6">
         <div class="progress" id="player-progressbar-container">
           <span id="player-song-title">This is the most awesome song ever - Awesomeness</span>
           <span id="player-song-duration">13:37</span>
