@@ -1,3 +1,19 @@
+Router.configure({
+  layoutTemplate: 'MasterLayout',
+  loadingTemplate: 'Loading',
+  notFoundTemplate: 'NotFound',
+  yieldTemplates: {
+    'header': { to: 'header' },
+    'footer': { to: 'footer' }
+  }
+});
+
+// enable hooks
+if (Meteor.isClient) {
+  Router.onBeforeAction('dataNotFound');
+  Router.onBeforeAction('loading');
+}
+
 // global configuration
 Router.waitOn(function() {
   return [Meteor.subscribe('allplaylists'),
@@ -14,26 +30,27 @@ Router.map(function() {
       playlists: function() {
         return Playlists.find({},{sort: {createdAt: -1}, limit: 5});
       }
-    },
+    }
   });
 
   this.route('allplaylists', {
-	data: {
-	      playlists: function() {
+    data: {
+      playlists: function() {
         return Playlists.find({},{sort: {createdAt: -1}});
       }
-	},
+    }
   });
 
   this.route('playlist', {
     path: '/playlist/:_id',
-    waitOn: function() {
-      return Meteor.subscribe('playlist',this.params._id);
-    },
     onBeforeAction: function() {
+      console.log("subscribe to playlist", this.params._id);
+      this.subscribe('playlist', this.params._id);
       var playlist = this.data();
-      if (!playlist)
+      if (!playlist) {
+        console.warn("no playlist");
         return;
+      }
       var songs = playlist.songs || [];
       songs = _.pluck(songs, 'songId');
       //add another subscription to waiting list
@@ -67,8 +84,7 @@ Router.map(function() {
   this.route('userProfile', {
     path:'/profile/:_id',
     waitOn: function() {
-      return
-        Meteor.subscribe('playlistsByUser', this.params._id);
+      return Meteor.subscribe('playlistsByUser', this.params._id);
     },
     data: function () {
       var user = Meteor.users.findOne(this.params._id);

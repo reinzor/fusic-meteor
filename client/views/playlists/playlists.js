@@ -19,13 +19,6 @@ Template.insertPlaylistForm.events = {
   }
 };
 
-Template.playlistsEntry.events = {
-  'click .playlist-container' : function(e,template) {
-    Router.go('/playlist/'+this._id);
-  }
-};
-
-
 Template.playlist.rendered = function() {
   AutoForm.hooks({
     removeButton: { //on successful remove, go back to playlist page
@@ -147,8 +140,10 @@ Template.contributionChart.rendered = function () {
 
   var groups = _.groupBy(this.data.songs, 'author');
   var users = _.map(groups, function (songs, author) {
+    var user = Meteor.users.findOne({_id: author});
+    user = user ? user.username : "";
     return {
-      name: Meteor.users.findOne({_id: author}).username,
+      name: user,
       amount: songs.length,
     };
   });
@@ -422,6 +417,7 @@ var searchResultsDependency = new Deps.Dependency();
 
 youtubeSearchQuery = function(options) {
   options = options || {};
+  var currentSearchTimer = searchTimer;
 
   Meteor.call('youtube_search', options, function(error, data) {
     if (error) {
@@ -432,6 +428,11 @@ youtubeSearchQuery = function(options) {
     searchError   = error;
     searchResults = data; // TODO: search result data != videoQuery data
     searchResultsDependency.changed();
+
+    if (currentSearchTimer != searchTimer) {
+      console.warn('cancel video query');
+      return;
+    }
 
     // query for more details (needs optimization)
     var ids = _.pluck(_.pluck(data.items, 'id'), 'videoId');
